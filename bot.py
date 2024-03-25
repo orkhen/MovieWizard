@@ -67,23 +67,25 @@ def send_help(message):
 
 @bot.message_handler(commands=['preferences'])
 def get_user_preferences(message):
-    bot.send_message(message.chat.id, "This feature is being developed. Please, try again later.")
-    # user_id = message.from_user.id
-    # user = MovieWizard().get_user_by_id(user_id)
-    # if user:
-    #     text = f"Your current preferences:\n\n"
-    #     text += "Genres: " + ", ".join([genre['name'] for genre in user['with_genres']]) + "\n"
-    #     text += "Duration: " + DURATIONS.get((user['runtime_gte'], user['runtime_lte']), 'No limit')[0] + "\n"
-    #     text += "Rating: " + str(user['vote_gte']) + "\n"
-    #     text += "Release Date: " + str(user['release_date_gte']) + "\n"
-    #     text += "Include Adult Content: " + user['include_adult'] + "\n\n"
-    #     text += "Would you like to change your preferences?\n\n"
-    #     text += "Yes / No"
-    #     markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    #     markup.add(*[types.KeyboardButton(button) for button in ADULT_CONTENT])
-    #     bot.send_message(message.chat.id, text, reply_markup=markup)
-    # else:
-    #     bot.send_message(message.chat.id, "You have not set your preferences yet. Start with /start command.")
+    # bot.send_message(message.chat.id, "This feature is being developed. Please, try again later.")
+    user_id = message.from_user.id
+    preferences = MovieWizard().get_user_preferences(user_id)
+
+    if preferences:
+        text = f"Your current preferences:\n\n"
+        text += "Genres: " + ", ".join([genre for genre in preferences['with_genres']]) + "\n"
+        text += "Duration: " + DURATIONS.get((preferences['runtime_gte'], preferences['runtime_lte']), 'No limit')[0] + "\n"
+        text += "Rating: " + str(preferences['vote_gte']) + "\n"
+        text += "Release Date: " + str(preferences['release_date_gte']) + "\n"
+        text += "Include Adult Content: " + preferences['include_adult'] + "\n\n"
+        text += "Would you like to change your preferences?\n\n"
+        text += "Yes / No"
+        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        # markup.add(*[types.KeyboardButton(button) for button in ADULT_CONTENT])
+        # bot.send_message(message.chat.id, text, reply_markup=markup)
+        # bot.send_message(message.chat.id, "Select your favorite genres (you can choose multiple, then press Done when finished):", reply_markup=generate_markup(GENRES, "genre", 4))
+    else:
+        bot.send_message(message.chat.id, "You have not set your preferences yet. Start with /start command.")
 
 
 @bot.message_handler(commands=['generate'])
@@ -117,9 +119,9 @@ def clear_discovered_movies(message):
 @bot.message_handler(commands=['discovered'])
 def get_discovered_movies(message):
     user_id = message.from_user.id
-    user = MovieWizard().get_user_discovered_list(user_id)
-    if user:
-        bot.send_message(user_id, "Discovered movies:\n" + "\n".join([movie['title'] for movie in user['discovered']]))
+    discovered_movies = MovieWizard().get_user_discovered_list(user_id)
+    if discovered_movies:
+        bot.send_message(user_id, "Discovered movies:\n" + "\n".join([movie for movie in discovered_movies]))
     else:
         bot.send_message(user_id, "You have not set your preferences yet. Start with /start command.")
 
