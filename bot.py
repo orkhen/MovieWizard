@@ -114,7 +114,14 @@ def clear_discovered_movies(message):
     MovieWizard().clear_user_discovered_list(user_id)
     bot.send_message(user_id, "Discovered movies list has been cleared.")
 
-
+@bot.message_handler(commands=['discovered'])
+def get_discovered_movies(message):
+    user_id = message.from_user.id
+    user = MovieWizard().get_user_discovered_list(user_id)
+    if user:
+        bot.send_message(user_id, "Discovered movies:\n" + "\n".join([movie['title'] for movie in user['discovered']]))
+    else:
+        bot.send_message(user_id, "You have not set your preferences yet. Start with /start command.")
 
 def generate_markup(options, callback_prefix="", max_row_width=4):
     markup = types.InlineKeyboardMarkup()
