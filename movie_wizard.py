@@ -144,5 +144,5 @@ class MovieWizard:
 
         return response
     
-m = MovieWizard()
-print(m.get_user_preferences(1268370310))
+# m = MovieWizard()
+# print(m.get_user_preferences(1268370310))
