@@ -38,6 +38,16 @@ class MovieWizard:
         self.user_preferences = self.db.get_user_by_id(user_id)
         self.discovered = self.user_preferences['discovered']
     
+    def get_user_preferences(self, user_id) -> dict:
+        self.set_user_preferences(user_id)
+
+        with_genres = self.user_preferences['with_genres']
+        translated_genres = self.translate_genres(with_genres, mode='name')
+
+        self.user_preferences['with_genres'] = translated_genres
+
+        return self.user_preferences
+
     def get_user_by_id(self, user_id) -> dict:
         return self.db.get_user_by_id(user_id)
 
@@ -127,9 +137,12 @@ class MovieWizard:
         self.db.clear_user_discovered_list(user_id)
 
     def get_user_discovered_list(self, user_id: int) -> list:
-        return self.db.get_user_discovered_list(user_id)
+        return [Movie().details(movie_id).title for movie_id in self.db.get_user_discovered_list(user_id)]
     
     def format_response(self, movie_details_json) -> str:
         response = f"Title: {movie_details_json['title']}\n Overview: {movie_details_json['overview']}\n Release date: {movie_details_json['release_date']}\n Vote average: {movie_details_json['vote_average']}\n Genres: {movie_details_json['genres']}\n Cast: {movie_details_json['cast']}\n Runtime: {movie_details_json['runtime']} minutes\n"
 
         return response
+    
+m = MovieWizard()
+print(m.get_user_preferences(1268370310))
