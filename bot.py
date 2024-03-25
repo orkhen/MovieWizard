@@ -36,6 +36,13 @@ DURATIONS = {
     "No limit": (60, 400)  # Use None to indicate no upper limit
 }
 
+DURATIONS_REVERSED = {
+    (60, 90): "<90 mins",
+    (60, 120): "<120 mins",
+    (60, 150): "<150 mins",
+    (60, 400): "No limit"
+}
+
 RATINGS = [str(i) for i in range(5, 11)]  # Ratings from 5 to 10
 
 ADULT_CONTENT = ["Yes", "No"]
@@ -74,19 +81,28 @@ def get_user_preferences(message):
     if preferences:
         text = f"Your current preferences:\n\n"
         text += "Genres: " + ", ".join([genre for genre in preferences['with_genres']]) + "\n"
-        text += "Duration: " + DURATIONS.get((preferences['runtime_gte'], preferences['runtime_lte']), 'No limit')[0] + "\n"
+        text += "Duration: " + DURATIONS_REVERSED.get((preferences['runtime_gte'], preferences['runtime_lte']), 'No limit') + "\n"
         text += "Rating: " + str(preferences['vote_gte']) + "\n"
         text += "Release Date: " + str(preferences['release_date_gte']) + "\n"
-        text += "Include Adult Content: " + preferences['include_adult'] + "\n\n"
+        text += "Include Adult Content: " + str(preferences['include_adult']) + "\n\n"
         text += "Would you like to change your preferences?\n\n"
         text += "Yes / No"
-        # markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-        # markup.add(*[types.KeyboardButton(button) for button in ADULT_CONTENT])
-        # bot.send_message(message.chat.id, text, reply_markup=markup)
+        markup = generate_markup(["Yes", "No"], "change_preferences", 1)
+        # bot.send_message(message.chat.id, text)
+        bot.send_message(message.chat.id, text, reply_markup=markup)
         # bot.send_message(message.chat.id, "Select your favorite genres (you can choose multiple, then press Done when finished):", reply_markup=generate_markup(GENRES, "genre", 4))
     else:
         bot.send_message(message.chat.id, "You have not set your preferences yet. Start with /start command.")
 
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("change_preferences:"))
+def change_preferences(call):
+    user_id = call.from_user.id
+    if call.data.split("change_preferences:")[1] == 'Yes':
+        user_preferences[user_id] = {'with_genres': []}
+        bot.send_message(call.message.chat.id, "Select your favorite genres (you can choose multiple, then press Done when finished):", reply_markup=generate_markup(GENRES, "genre", 4))
+    else:
+        return
 
 @bot.message_handler(commands=['generate'])
 def generate_movie(message):
