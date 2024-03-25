@@ -10,7 +10,7 @@ from user import User
 load_dotenv()
 
 uri = os.getenv('MONGO_DB_CONNECTION_STRING')
-client = MongoClient('mongodb+srv://orkhen:O1a22005orxan@telegramchik.qsxokaa.mongodb.net/?retryWrites=true&w=majority&appName=telegramchik')
+client = MongoClient(uri)
 db = client['movie_wizard']
 
 class DBHandler:
